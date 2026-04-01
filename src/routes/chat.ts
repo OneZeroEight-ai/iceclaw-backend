@@ -18,7 +18,7 @@ app.post('/customer/:clerkUserId/agents/:agentId/chat', async (c) => {
 
   return streamSSE(c, async (stream) => {
     try {
-      const proc = spawn('docker', ['exec', containerId, 'openclaw', 'agent', '--message', message])
+      const proc = spawn('docker', ['exec', containerId, 'openclaw', 'agent', '--agent', agentId, '--message', message])
       let output = ''
 
       proc.stdout.on('data', (data: Buffer) => { output += data.toString() })
