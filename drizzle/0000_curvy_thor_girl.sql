@@ -1,0 +1,41 @@
+CREATE TABLE "iceclaw_customers" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"clerk_user_id" varchar(255) NOT NULL,
+	"email" varchar(255) NOT NULL,
+	"name" varchar(255),
+	"stripe_customer_id" varchar(255),
+	"stripe_subscription_id" varchar(255),
+	"btcpay_invoice_id" varchar(255),
+	"plan" varchar(50) DEFAULT 'intro',
+	"status" varchar(50) DEFAULT 'pending',
+	"container_id" varchar(255),
+	"container_status" varchar(50) DEFAULT 'pending',
+	"openclaw_port" integer,
+	"openclaw_version" varchar(50) DEFAULT '2026.3.28',
+	"exchanges_used" integer DEFAULT 0,
+	"exchanges_limit" integer DEFAULT 2000,
+	"last_exchange_at" timestamp,
+	"bodhi_enforced" boolean DEFAULT true,
+	"nirvana_enforced" boolean DEFAULT true,
+	"sila_enforced" boolean DEFAULT true,
+	"dharma_enforced" boolean DEFAULT true,
+	"admin_notes" text,
+	"waitlisted_at" timestamp,
+	"cancelled_at" timestamp,
+	"created_at" timestamp DEFAULT now(),
+	"updated_at" timestamp DEFAULT now(),
+	CONSTRAINT "iceclaw_customers_clerk_user_id_unique" UNIQUE("clerk_user_id")
+);
+--> statement-breakpoint
+CREATE TABLE "openclaw_versions" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"version" varchar(50) NOT NULL,
+	"image_tag" varchar(200) NOT NULL,
+	"release_notes" text,
+	"is_current" boolean DEFAULT false,
+	"is_stable" boolean DEFAULT false,
+	"memory_gb" integer DEFAULT 3,
+	"tested_at" timestamp,
+	"rolled_out_at" timestamp,
+	"created_at" timestamp DEFAULT now()
+);

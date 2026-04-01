@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: iceclaw
+      POSTGRES_USER: sutra
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sutra -d iceclaw"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  iceclaw-backend:
+    image: jbwagoner/iceclaw-backend:latest
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - /home/sutra/base/data/users:/home/sutra/base/data/users:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
