@@ -26,6 +26,10 @@ app.post('/customer/:clerkUserId/agents/:agentId/chat', async (c) => {
       await new Promise<void>((resolve, reject) => {
         proc.on('close', async (code) => {
           const text = output.trim()
+            .split('\n')
+            .filter(line => !line.startsWith('['))
+            .join('\n')
+            .trim()
           if (text) {
             await stream.writeSSE({ data: JSON.stringify({ type: 'chunk', text }) })
           }
