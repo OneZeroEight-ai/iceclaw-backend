@@ -6,7 +6,7 @@ import { sendVersionNotification } from '../services/email.js'
 import { execSync } from 'child_process'
 
 const app = new Hono()
-app.use('*', adminAuth)
+app.use('/admin/*', adminAuth)
 
 // GET /admin/overview
 app.get('/admin/overview', async (c) => {
