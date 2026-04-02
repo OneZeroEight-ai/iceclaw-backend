@@ -1,10 +1,28 @@
 import { Hono } from 'hono'
 import { streamSSE } from 'hono/streaming'
 import { spawn } from 'child_process'
+import { readFileSync } from 'fs'
 import { eq } from 'drizzle-orm'
 import { db, schema } from '../db/index.js'
+import { getWorkspaceDir } from '../services/openclaw.js'
+import { DEFAULT_AGENTS } from '../services/provisioner.js'
 
 const app = new Hono()
+
+function readSoulMd(clerkUserId: string, agentId: string): string | null {
+  try {
+    const wsDir = getWorkspaceDir(clerkUserId, agentId)
+    return readFileSync(`${wsDir}/SOUL.md`, 'utf-8').trim()
+  } catch {
+    return null
+  }
+}
+
+function buildAgentMessage(agentId: string, message: string, soulContent: string | null): string {
+  if (agentId === 'main' || !soulContent) return message
+  const agentName = DEFAULT_AGENTS.find(a => a.id === agentId)?.name ?? agentId
+  return `[ACTING AS: ${agentName}]\n[SOUL]\n${soulContent}\n[/SOUL]\n\nUser message: ${message}`
+}
 
 // POST /customer/:clerkUserId/agents/:agentId/chat
 app.post('/customer/:clerkUserId/agents/:agentId/chat', async (c) => {
@@ -15,10 +33,12 @@ app.post('/customer/:clerkUserId/agents/:agentId/chat', async (c) => {
   if (!customer?.containerId) return c.json({ error: 'Stronghold not found' }, 404)
 
   const containerId = customer.containerId
+  const soulContent = readSoulMd(clerkUserId, agentId)
+  const fullMessage = buildAgentMessage(agentId, message, soulContent)
 
   return streamSSE(c, async (stream) => {
     try {
-      const proc = spawn('docker', ['exec', containerId, 'openclaw', 'agent', '--agent', agentId, '--message', message])
+      const proc = spawn('docker', ['exec', containerId, 'openclaw', 'agent', '--agent', 'main', '--message', fullMessage])
       let output = ''
 
       proc.stdout.on('data', (data: Buffer) => { output += data.toString() })
