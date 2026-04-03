@@ -1,5 +1,5 @@
 services:
-  db:
+  postgres:
     image: postgres:17
     restart: unless-stopped
     environment:
@@ -8,11 +8,6 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
-    ports:
-      - "127.0.0.1:5432:5432"
-    networks:
-      - internal
-      - base-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U sutra -d iceclaw"]
       interval: 10s
@@ -29,16 +24,15 @@ services:
       - /home/sutra/base/data/users:/home/sutra/base/data/users:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
-      - internal
+      - default
       - base-network
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
 
 volumes:
   pgdata:
 
 networks:
-  internal:
   base-network:
     external: true
