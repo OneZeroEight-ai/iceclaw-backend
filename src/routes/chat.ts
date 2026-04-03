@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { streamSSE } from 'hono/streaming'
 import { spawn } from 'child_process'
-import { readFileSync } from 'fs'
+import { readFileSync, existsSync } from 'fs'
 import { eq } from 'drizzle-orm'
 import { db, schema } from '../db/index.js'
 import { getWorkspaceDir } from '../services/openclaw.js'
@@ -32,6 +32,12 @@ app.post('/customer/:clerkUserId/agents/:agentId/chat', async (c) => {
 
   const [customer] = await db.select().from(schema.customers).where(eq(schema.customers.clerkUserId, clerkUserId))
   if (!customer?.containerId) return c.json({ error: 'Stronghold not found' }, 404)
+
+  // Check if agent is paused
+  const pausedPath = `${getWorkspaceDir(clerkUserId, agentId)}/PAUSED`
+  if (existsSync(pausedPath)) {
+    return c.json({ error: 'Agent paused by user' }, 403)
+  }
 
   const containerId = customer.containerId
   const soulContent = readSoulMd(clerkUserId, agentId)
