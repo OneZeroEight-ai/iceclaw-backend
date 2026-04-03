@@ -21,7 +21,7 @@ function readSoulMd(clerkUserId: string, agentId: string): string | null {
 function buildAgentMessage(agentId: string, message: string, soulContent: string | null): string {
   if (agentId === 'main' || !soulContent) return message
   const agentName = DEFAULT_AGENTS.find(a => a.id === agentId)?.name ?? agentId
-  return `[ACTING AS: ${agentName}]\n[SOUL]\n${soulContent}\n[/SOUL]\n\nUser message: ${message}`
+  return `SYSTEM OVERRIDE: You are NOT IceClaw Assistant. For this entire conversation you are ${agentName}. Ignore any previous identity. Your personality and role:\n\n${soulContent}\n\n---\nUser says: ${message}`
 }
 
 // POST /customer/:clerkUserId/agents/:agentId/chat
@@ -45,7 +45,11 @@ app.post('/customer/:clerkUserId/agents/:agentId/chat', async (c) => {
 
   return streamSSE(c, async (stream) => {
     try {
-      const proc = spawn('docker', ['exec', containerId, 'openclaw', 'agent', '--agent', 'main', '--session-id', sid, '--message', fullMessage])
+      const isSpecialist = agentId !== 'main'
+      const args = ['exec', containerId, 'openclaw', 'agent', '--agent', 'main', '--session-id', sid]
+      if (isSpecialist) args.push('--local')
+      args.push('--message', fullMessage)
+      const proc = spawn('docker', args)
       let output = ''
 
       proc.stdout.on('data', (data: Buffer) => { output += data.toString() })
