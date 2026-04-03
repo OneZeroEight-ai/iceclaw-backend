@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, boolean, integer, timestamp, text } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, varchar, boolean, integer, timestamp, text, index } from 'drizzle-orm/pg-core'
 
 export const customers = pgTable('iceclaw_customers', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -54,6 +54,19 @@ export const openclawVersions = pgTable('openclaw_versions', {
   rolledOutAt: timestamp('rolled_out_at'),
   createdAt: timestamp('created_at').defaultNow(),
 })
+
+export const chatMessages = pgTable('chat_messages', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  clerkUserId: text('clerk_user_id').notNull(),
+  agentId: text('agent_id').notNull(),
+  role: text('role').notNull(),
+  content: text('content').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => [
+  index('chat_messages_user_agent_idx').on(table.clerkUserId, table.agentId, table.createdAt),
+])
+
+export type ChatMessage = typeof chatMessages.$inferSelect
 
 export type Customer = typeof customers.$inferSelect
 export type NewCustomer = typeof customers.$inferInsert
