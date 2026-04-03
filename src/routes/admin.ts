@@ -10,16 +10,57 @@ app.use('/admin/*', adminAuth)
 
 // GET /admin/overview
 app.get('/admin/overview', async (c) => {
-  const total = (await db.select().from(schema.customers)).length
-  const active = (await db.select().from(schema.customers).where(eq(schema.customers.status, 'active'))).length
-  const cancelled = (await db.select().from(schema.customers).where(eq(schema.customers.status, 'cancelled'))).length
-  return c.json({ total, active, cancelled, mrr: active * 19 })
+  const all = await db.select().from(schema.customers)
+  const active = all.filter(c => c.status === 'active').length
+  const cancelled = all.filter(c => c.status === 'cancelled').length
+  const pastDue = all.filter(c => c.status === 'past_due').length
+  const pending = all.filter(c => c.containerStatus === 'pending').length
+  const introCount = all.filter(c => c.status === 'active' && c.plan === 'intro').length
+  const standardCount = all.filter(c => c.status === 'active' && c.plan === 'standard').length
+  const totalExchanges = all.reduce((sum, c) => sum + (c.exchangesUsed ?? 0), 0)
+  return c.json({
+    total_subscribers: all.length,
+    active,
+    past_due: pastDue,
+    cancelled,
+    containers_pending: pending,
+    mrr_usd: active * 19,
+    intro_count: introCount,
+    standard_count: standardCount,
+    total_exchanges_this_month: totalExchanges,
+  })
 })
 
 // GET /admin/subscribers
 app.get('/admin/subscribers', async (c) => {
-  const subs = await db.select().from(schema.customers).orderBy(desc(schema.customers.createdAt))
-  return c.json({ subscribers: subs, total: subs.length })
+  const status = c.req.query('status')
+  let query = db.select().from(schema.customers).orderBy(desc(schema.customers.createdAt))
+  const all = await query
+  const filtered = status ? all.filter(r => r.status === status || r.containerStatus === status) : all
+  const subscribers = filtered.map(s => ({
+    id: s.id,
+    clerk_user_id: s.clerkUserId,
+    email: s.email,
+    name: s.name,
+    plan: s.plan,
+    status: s.status,
+    container_status: s.containerStatus,
+    container_id: s.containerId,
+    openclaw_port: s.openclawPort,
+    exchanges_used: s.exchangesUsed ?? 0,
+    exchanges_limit: s.exchangesLimit ?? 2000,
+    created_at: s.createdAt?.toISOString() ?? null,
+    cancelled_at: s.cancelledAt?.toISOString() ?? null,
+    admin_notes: s.adminNotes,
+    stripe_subscription_id: s.stripeSubscriptionId,
+    governance: {
+      bodhi: s.bodhiEnforced ?? true,
+      nirvana: s.nirvanaEnforced ?? true,
+      sila: s.silaEnforced ?? true,
+      dharma: s.dharmaEnforced ?? true,
+    },
+  }))
+  return c.json({ subscribers, total: subscribers.length })
 })
 
 // POST /admin/subscribers/:id/note
