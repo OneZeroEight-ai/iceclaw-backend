@@ -27,8 +27,8 @@ function buildAgentMessage(agentId: string, message: string, soulContent: string
 // POST /customer/:clerkUserId/agents/:agentId/chat
 app.post('/customer/:clerkUserId/agents/:agentId/chat', async (c) => {
   const { clerkUserId, agentId } = c.req.param()
-  const { message, session_id: sessionId } = await c.req.json()
-  const sid = sessionId || `web-${agentId}-${Date.now()}`
+  const { message } = await c.req.json()
+  const sid = `${clerkUserId}-${agentId}`
 
   const [customer] = await db.select().from(schema.customers).where(eq(schema.customers.clerkUserId, clerkUserId))
   if (!customer?.containerId) return c.json({ error: 'Stronghold not found' }, 404)
