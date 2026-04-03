@@ -27,7 +27,8 @@ function buildAgentMessage(agentId: string, message: string, soulContent: string
 // POST /customer/:clerkUserId/agents/:agentId/chat
 app.post('/customer/:clerkUserId/agents/:agentId/chat', async (c) => {
   const { clerkUserId, agentId } = c.req.param()
-  const { message } = await c.req.json()
+  const { message, session_id: sessionId } = await c.req.json()
+  const sid = sessionId || `web-${agentId}-${Date.now()}`
 
   const [customer] = await db.select().from(schema.customers).where(eq(schema.customers.clerkUserId, clerkUserId))
   if (!customer?.containerId) return c.json({ error: 'Stronghold not found' }, 404)
@@ -38,7 +39,7 @@ app.post('/customer/:clerkUserId/agents/:agentId/chat', async (c) => {
 
   return streamSSE(c, async (stream) => {
     try {
-      const proc = spawn('docker', ['exec', containerId, 'openclaw', 'agent', '--agent', 'main', '--message', fullMessage])
+      const proc = spawn('docker', ['exec', containerId, 'openclaw', 'agent', '--agent', 'main', '--session-id', sid, '--message', fullMessage])
       let output = ''
 
       proc.stdout.on('data', (data: Buffer) => { output += data.toString() })
