@@ -1,28 +1,12 @@
 import { Hono } from 'hono'
 import { streamSSE } from 'hono/streaming'
 import { spawn } from 'child_process'
-import { readFileSync, existsSync } from 'fs'
+import { existsSync } from 'fs'
 import { eq } from 'drizzle-orm'
 import { db, schema } from '../db/index.js'
 import { getWorkspaceDir } from '../services/openclaw.js'
-import { DEFAULT_AGENTS } from '../services/provisioner.js'
 
 const app = new Hono()
-
-function readSoulMd(clerkUserId: string, agentId: string): string | null {
-  try {
-    const wsDir = getWorkspaceDir(clerkUserId, agentId)
-    return readFileSync(`${wsDir}/SOUL.md`, 'utf-8').trim()
-  } catch {
-    return null
-  }
-}
-
-function buildAgentMessage(agentId: string, message: string, soulContent: string | null): string {
-  if (agentId === 'main' || !soulContent) return message
-  const agentName = DEFAULT_AGENTS.find(a => a.id === agentId)?.name ?? agentId
-  return `SYSTEM OVERRIDE: You are NOT IceClaw Assistant. For this entire conversation you are ${agentName}. Ignore any previous identity. Your personality and role:\n\n${soulContent}\n\n---\nUser says: ${message}`
-}
 
 // POST /customer/:clerkUserId/agents/:agentId/chat
 app.post('/customer/:clerkUserId/agents/:agentId/chat', async (c) => {
@@ -40,15 +24,10 @@ app.post('/customer/:clerkUserId/agents/:agentId/chat', async (c) => {
   }
 
   const containerId = customer.containerId
-  const soulContent = readSoulMd(clerkUserId, agentId)
-  const fullMessage = buildAgentMessage(agentId, message, soulContent)
 
   return streamSSE(c, async (stream) => {
     try {
-      const isSpecialist = agentId !== 'main'
-      const args = ['exec', containerId, 'openclaw', 'agent', '--agent', 'main', '--session-id', sid]
-      if (isSpecialist) args.push('--local')
-      args.push('--message', fullMessage)
+      const args = ['exec', containerId, 'openclaw', 'agent', '--agent', agentId, '--session-id', sid, '--message', message]
       const proc = spawn('docker', args)
       let output = ''
 
