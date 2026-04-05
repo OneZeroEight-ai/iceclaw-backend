@@ -23,9 +23,27 @@ app.post('/webhook/stripe', async (c) => {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
-    const clerkUserId = session.metadata?.clerk_user_id ?? ''
-    const email = session.customer_email ?? ''
-    if (!clerkUserId || !email) return c.json({ status: 'ignored' })
+    console.log('[webhook] session keys:', Object.keys(session))
+    console.log('[webhook] customer_email:', session.customer_email)
+    console.log('[webhook] customer_details:', JSON.stringify((session as any).customer_details))
+    console.log('[webhook] metadata:', JSON.stringify(session.metadata))
+    console.log('[webhook] customer:', session.customer)
+    console.log('[webhook] client_reference_id:', session.client_reference_id)
+
+    const email = session.customer_email
+      ?? (session as any).customer_details?.email
+      ?? ''
+    const clerkUserId = session.metadata?.clerk_user_id
+      ?? (session.metadata as any)?.clerkUserId
+      ?? session.client_reference_id
+      ?? ''
+
+    console.log('[webhook] resolved email:', email, 'clerkUserId:', clerkUserId)
+
+    if (!clerkUserId || !email) {
+      console.log('[webhook] SKIPPING — missing email or clerkUserId. FULL SESSION:', JSON.stringify(session))
+      return c.json({ status: 'ignored', reason: 'missing email or clerk_user_id' })
+    }
 
     // Upsert customer
     const [existing] = await db.select().from(schema.customers).where(eq(schema.customers.clerkUserId, clerkUserId))
