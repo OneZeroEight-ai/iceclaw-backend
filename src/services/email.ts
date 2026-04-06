@@ -13,7 +13,7 @@ export async function sendWelcomeEmail(email: string, port: number, authToken: s
 <code style="background:rgba(0,0,0,0.3);padding:8px 12px;border-radius:4px;color:#4fc3f7;font-size:12px;display:block;margin-bottom:16px">wss://agents.iceclaw.online/u/${port}</code>
 </div>
 <a href="https://www.iceclaw.online/dashboard" style="display:inline-block;background:#e85d24;color:white;padding:14px 28px;border-radius:6px;text-decoration:none;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:32px">Go to Dashboard →</a>
-<p style="color:#445566;font-size:12px;border-top:1px solid rgba(255,255,255,0.08);padding-top:24px">Questions? Reply to this email · <a href="https://iceclaw.online/terms" style="color:#445566">Terms</a> · <a href="https://iceclaw.online/privacy" style="color:#445566">Privacy</a></p>
+<p style="color:#445566;font-size:12px;border-top:1px solid rgba(255,255,255,0.08);padding-top:24px">Questions? Reply to this email · <a href="https://www.iceclaw.online/terms" style="color:#445566">Terms</a> · <a href="https://www.iceclaw.online/privacy" style="color:#445566">Privacy</a></p>
 </div>`
 
   await resend.emails.send({ from: `IceClaw <${FROM}>`, to: [email], subject, html })
