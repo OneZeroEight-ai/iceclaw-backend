@@ -14,6 +14,7 @@ import { checkoutRoutes } from './routes/checkout.js'
 import { agentSettingsRoutes } from './routes/agent-settings.js'
 import { agentConfigRoutes } from './routes/agent-config.js'
 import { brandRoutes } from './routes/brand.js'
+import { councilRoutes } from './routes/council.js'
 import { brandMiddleware } from './middleware/brand.js'
 
 const app = new Hono()
@@ -40,6 +41,7 @@ app.route('/api/iceclaw', webhookRoutes)
 app.route('/api/iceclaw', checkoutRoutes)
 app.route('/api/iceclaw', agentSettingsRoutes)
 app.route('/api/iceclaw', agentConfigRoutes)
+app.route('/api/iceclaw', councilRoutes)
 
 const port = parseInt(process.env.PORT ?? '3000')
 
