@@ -1,0 +1,32 @@
+{
+  "brand_id": "iceclaw",
+  "domain": "iceclaw.online",
+  "display_name": "IceClaw",
+  "tagline": "Sovereign OpenClaw Hosting. Iceland.",
+  "logo": {
+    "primary": "/brand/logo-rendered.png",
+    "favicon": "/brand/favicon-rendered.png",
+    "og_image": "/brand/logo-full.png"
+  },
+  "colors": {
+    "primary": "#0a1628",
+    "accent": "#e85d24",
+    "secondary": "#0077cc",
+    "background": "#ffffff",
+    "surface": "#f8f9fa",
+    "text_primary": "#0a1628",
+    "text_muted": "#555f6d"
+  },
+  "preloaded_agents": "iceclaw-9",
+  "agent_source": "builtin",
+  "council_enabled": false,
+  "synthesis_agent": null,
+  "pricing_tiers": {
+    "founder": { "price_monthly": 19, "max_custom_agents": -1, "channels": ["dashboard", "telegram"] }
+  },
+  "hide_iceclaw_branding": false,
+  "hide_openclaw_branding": false,
+  "footer": {
+    "company": "OneZeroEight.ai"
+  }
+}

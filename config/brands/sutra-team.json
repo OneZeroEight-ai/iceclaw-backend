@@ -1,0 +1,46 @@
+{
+  "brand_id": "sutra-team",
+  "domain": "sutra.team",
+  "display_name": "SUTRA.team",
+  "tagline": "The First OS for Autonomous Agents",
+  "logo": {
+    "primary": "/brand/sutra/logo.png",
+    "favicon": "/brand/sutra/favicon.png",
+    "og_image": "/brand/sutra/og-image.png"
+  },
+  "colors": {
+    "primary": "#0F1923",
+    "accent": "#E94560",
+    "secondary": "#1B5E7B",
+    "background": "#FFFFFF",
+    "surface": "#F4F6F8",
+    "text_primary": "#2D3748",
+    "text_muted": "#718096"
+  },
+  "preloaded_agents": "sutra-15",
+  "agent_source": "github:OneZeroEight-ai/portable-minds/agents",
+  "council_enabled": true,
+  "synthesis_agent": "sutra",
+  "pricing_tiers": {
+    "explorer": { "price_monthly": 9, "max_custom_agents": 5, "council_deliberations_per_month": 3, "channels": ["dashboard"] },
+    "pro": { "price_monthly": 29, "max_custom_agents": -1, "council_deliberations_per_month": -1, "channels": ["dashboard", "telegram", "slack", "email"] },
+    "international": { "price_monthly": 49, "max_custom_agents": -1, "council_deliberations_per_month": -1, "channels": ["dashboard", "telegram", "slack", "email", "discord", "voice"], "iceland_hosting": true },
+    "enterprise": { "custom": true }
+  },
+  "hide_iceclaw_branding": true,
+  "hide_openclaw_branding": true,
+  "footer": {
+    "company": "OneZeroEight.ai",
+    "ecosystem_links": {
+      "sammasuit": "https://sammasuit.com",
+      "onezeroeight": "https://onezeroeight.ai",
+      "github": "https://github.com/OneZeroEight-ai"
+    },
+    "social": {
+      "sutra": "https://x.com/sutra_ai",
+      "sammasuit": "https://x.com/sammasuit",
+      "jb": "https://x.com/jbwagoner",
+      "onezeroeight": "https://x.com/OneZeroEight_ai"
+    }
+  }
+}

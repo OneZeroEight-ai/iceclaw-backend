@@ -13,17 +13,22 @@ import { webhookRoutes } from './routes/webhooks.js'
 import { checkoutRoutes } from './routes/checkout.js'
 import { agentSettingsRoutes } from './routes/agent-settings.js'
 import { agentConfigRoutes } from './routes/agent-config.js'
+import { brandRoutes } from './routes/brand.js'
+import { brandMiddleware } from './middleware/brand.js'
 
 const app = new Hono()
 
 app.use('*', logger())
 app.use('/api/*', cors({
-  origin: ['https://www.iceclaw.online', 'https://iceclaw.online', 'http://localhost:3001'],
+  origin: ['https://www.iceclaw.online', 'https://iceclaw.online', 'https://sutra.team', 'https://www.sutra.team', 'http://localhost:3001'],
   credentials: true,
 }))
 
+app.use('/api/*', brandMiddleware)
+
 app.get('/health', (c) => c.json({ status: 'healthy', service: 'iceclaw-backend', version: '1.0.0' }))
 
+app.route('/api', brandRoutes)
 app.route('/api/iceclaw', customerRoutes)
 app.route('/api/iceclaw', agentRoutes)
 app.route('/api/iceclaw', chatRoutes)
